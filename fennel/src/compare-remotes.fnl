@@ -37,14 +37,17 @@
         path-prefix (replace-scheme remote-prefix replacements)]
     (.. path-prefix (if (endswith path-prefix "/") "" "/") path)))
 
+(lambda open-diff [local-path remote-prefix]
+  (let [dir? (= 1 (isdirectory local-path))
+        remote-path (get-remote-path remote-prefix local-path dir?)
+        tab (nvim_tabpage_get_number 0)]
+    (split {:mods {: tab :silent true}})
+    (diffsplit {1 remote-path :mods {:vertical true :silent true}})))
+
 (lambda entry-selected [local-path ?choice]
   (when ?choice
-    (let [[_ remote-prefix] ?choice
-          dir? (= 1 (isdirectory local-path))
-          remote-path (get-remote-path remote-prefix local-path dir?)
-          tab (nvim_tabpage_get_number 0)]
-      (split {:mods {: tab :silent true}})
-      (diffsplit {1 remote-path :mods {:vertical true :silent true}}))))
+    (let [[_ remote-prefix] ?choice]
+      (open-diff local-path remote-prefix))))
 
 (lambda open-remote-selection [local-path]
   (let [prompt (.. "Select remote to compare " local-path " against")]
@@ -64,11 +67,16 @@
     (if (and (project-file? relative-path) (project-file-scheme? buf-path))
         relative-path)))
 
-(fn compare-remotes []
+(lambda compare-file [path ?remote]
+  (if ?remote
+      (open-diff path ?remote)
+      (open-remote-selection path)))
+
+(fn compare-remotes [?remote]
   (let [buf-path (expand "%:p")
         project-file-path (buf-path->relative-project-path buf-path)]
     (if project-file-path
-        (open-remote-selection project-file-path)
+        (compare-file project-file-path ?remote)
         (nvim_echo [[(.. "Not a project file: " buf-path) :ErrorMsg]] false {}))))
 
 (lambda setup [?user-config]
@@ -77,7 +85,6 @@
     (set project-file-schemes config.project_file_schemes)
     (set scheme-replacements config.scheme_replacements)
     (set-remotes config.remotes)
-    (nvim_create_user_command :CompareRemotes compare-remotes {})
     (when config.mapping
       (kset :n config.mapping.key compare-remotes config.mapping.opts))))
 

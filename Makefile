@@ -1,18 +1,25 @@
-SRC := $(shell find fennel -name '*.fnl')
-OUT := $(patsubst fennel/%.fnl,lua/%.lua,${SRC})
+SRC := $(shell find fennel/src -name '*.fnl')
+SRC_PLUGIN := $(shell find fennel/plugin -name '*.fnl')
+
+OUT := $(patsubst fennel/src/%.fnl,lua/%.lua,${SRC})
+OUT_PLUGIN := $(patsubst fennel/%.fnl,%.lua,${SRC_PLUGIN})
 
 luaGlobals := vim,unpack
 
-all: $(OUT)
+all: $(OUT) $(OUT_PLUGIN)
 
-lua/%.lua: fennel/%.fnl
+lua/%.lua: fennel/src/%.fnl
 	@mkdir -p $(@D)
 	fennel --globals $(luaGlobals) --correlate --compile $< > $@
 
-format: $(SRC)
+plugin/%.lua: fennel/plugin/%.fnl
+	@mkdir -p $(@D)
+	fennel --globals $(luaGlobals) --correlate --compile $< > $@
+
+format: $(SRC) $(SRC_PLUGIN)
 	fnlfmt --fix $<
 
 clean:
-	rm -rf lua
+	rm -rf lua plugin
 
 .PHONY: all format clean
