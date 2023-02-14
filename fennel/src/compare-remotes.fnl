@@ -1,7 +1,8 @@
 (local {: endswith
         : startswith
         : tbl_contains
-        : tbl_deep_extend
+        : validate
+        : tbl_extend
         :api {: nvim_tabpage_get_number : nvim_echo : nvim_create_user_command}
         :cmd {: split : diffsplit}
         :fn {: expand : fnamemodify : glob : isdirectory}
@@ -9,7 +10,7 @@
 
 (local default-config
        {:remotes {}
-        :mapping {:key :<Leader>cr :opts {:desc "Compare remote file"}}
+        :mapping nil
         :project_file_schemes []
         :scheme_replacements {:file {} :dir {}}})
 
@@ -79,14 +80,26 @@
         (compare-file project-file-path ?remote)
         (nvim_echo [[(.. "Not a project file: " buf-path) :ErrorMsg]] false {}))))
 
-(lambda setup [?user-config]
-  (let [user-config (or ?user-config {})
-        config (tbl_deep_extend :force default-config user-config)]
-    (set project-file-schemes config.project_file_schemes)
-    (set scheme-replacements config.scheme_replacements)
-    (set-remotes config.remotes)
-    (when config.mapping
-      (kset :n config.mapping.key compare-remotes config.mapping.opts))))
+(lambda setup [?config]
+  (let [config (or ?config {})]
+    (validate {:project_file_schemes [config.project_file_schemes
+                                      [:nil :table]]
+               :scheme_replacements [config.scheme_replacements [:nil :table]]
+               :remotes [config.remotes [:nil :table]]
+               :mapping [config.mapping [:nil :table]]
+               :mapping.key [(?. config.mapping :key) [:nil :string]]
+               :mapping.opts [(?. config.mapping :opts) [:nil :table]]})
+    (when config.project_file_schemes
+      (set project-file-schemes config.project_file_schemes))
+    (when config.scheme_replacements
+      (set scheme-replacements config.scheme_replacements))
+    (when config.remotes
+      (set-remotes config.remotes))
+    (when (?. config.mapping :key)
+      (let [user-opts (or config.mapping.opts {})
+            default-opts {:desc "Compare with remote"}
+            opts (tbl_extend :force default-opts user-opts)]
+        (kset :n config.mapping.key compare-remotes opts)))))
 
 {: setup
  :set_remotes set-remotes

@@ -54,7 +54,8 @@ require('compare-remotes').setup({
     -- List of remotes available remotes for comparison
     remotes = {},
     -- Mapping for comparing the current file
-    mapping = {key = "<Leader>cr", opts = {desc = "Compare remote file"}},
+    -- accepts: {key = "<Leader>cr", opts = { "vim.keymap.set()" opts }}
+    mapping = nil,
     -- Schemes of buffers that are treated as project files if the path exists
     -- Example: set to {"oil"} if you want to be able to compare directories that are opened
     --          using oil.nvim (https://github.com/stevearc/oil.nvim)
@@ -71,6 +72,13 @@ require('compare-remotes').setup({
 Commands only get created if the setup function is run.
 
 `:CompareRemotes` - Compares the current file or directory after selecting a remote.
+
+`:CompareRemotes [remote-prefix]` - Compares the current file or directory with remote-prefix.
+
+Example:
+
+`:CompareRemotes scp://user@myserver//var/www/html` - Compares current file with directory
+`/var/www/html` on server `myserver`
 
 Note: You could also call the `compare_remotes` function of the lua module.
 
