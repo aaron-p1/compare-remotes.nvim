@@ -91,11 +91,13 @@
  local _27_ do local t_26_ = config.mapping if (nil ~= t_26_) then t_26_ = (t_26_).opts else end _27_ = t_26_ end validate({project_file_schemes = {config.project_file_schemes, {"nil", "table"}}, scheme_replacements = {config.scheme_replacements, {"nil", "table"}}, remotes = {config.remotes, {"nil", "table"}}, mapping = {config.mapping, {"nil", "table"}}, ["mapping.key"] = {_24_, {"nil", "string"}}, ["mapping.opts"] = {_27_, {"nil", "table"}}})
  if config.project_file_schemes then
  project_file_schemes = config.project_file_schemes else end
- if config.scheme_replacements then
- scheme_replacements = config.scheme_replacements else end
+ local _31_ do local t_30_ = config.scheme_replacements if (nil ~= t_30_) then t_30_ = (t_30_).file else end _31_ = t_30_ end if _31_ then
+ scheme_replacements.file = config.scheme_replacements.file else end
+ local _35_ do local t_34_ = config.scheme_replacements if (nil ~= t_34_) then t_34_ = (t_34_).dir else end _35_ = t_34_ end if _35_ then
+ scheme_replacements.dir = config.scheme_replacements.dir else end
  if config.remotes then
  set_remotes(config.remotes) else end
- local _33_ do local t_32_ = config.mapping if (nil ~= t_32_) then t_32_ = (t_32_).key else end _33_ = t_32_ end if _33_ then
+ local _40_ do local t_39_ = config.mapping if (nil ~= t_39_) then t_39_ = (t_39_).key else end _40_ = t_39_ end if _40_ then
  local user_opts = (config.mapping.opts or {})
  local default_opts = {desc = "Compare with remote"}
  local opts = tbl_extend("force", default_opts, user_opts)

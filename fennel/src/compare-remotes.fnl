@@ -91,8 +91,10 @@
                :mapping.opts [(?. config.mapping :opts) [:nil :table]]})
     (when config.project_file_schemes
       (set project-file-schemes config.project_file_schemes))
-    (when config.scheme_replacements
-      (set scheme-replacements config.scheme_replacements))
+    (when (?. config.scheme_replacements :file)
+      (set scheme-replacements.file config.scheme_replacements.file))
+    (when (?. config.scheme_replacements :dir)
+      (set scheme-replacements.dir config.scheme_replacements.dir))
     (when config.remotes
       (set-remotes config.remotes))
     (when (?. config.mapping :key)
